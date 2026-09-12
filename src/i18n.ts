@@ -12,6 +12,7 @@ export interface Translations {
     submitting: string;
     successMessage: string;
     genericError: string;
+    continuousLabel: string;
   };
   settings: {
     title: string;
@@ -56,6 +57,7 @@ export const translations: Record<Language, Translations> = {
       submitting: "登録中...",
       successMessage: "Notionに登録しました",
       genericError: "登録に失敗しました",
+      continuousLabel: "連続して登録する",
     },
     settings: {
       title: "TaskIn for Notion - 設定",
@@ -98,6 +100,7 @@ export const translations: Record<Language, Translations> = {
       submitting: "Adding...",
       successMessage: "Added to Notion",
       genericError: "Failed to add the task",
+      continuousLabel: "Keep adding tasks",
     },
     settings: {
       title: "TaskIn for Notion - Settings",

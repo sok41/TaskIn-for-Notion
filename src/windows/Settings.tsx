@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { enable as enableAutostart, disable as disableAutostart } from "@tauri-apps/plugin-autostart";
 import {
+  applyTrayLanguage,
   detectDatabaseSchema,
   extractDatabaseId,
   getSettings,
@@ -69,6 +70,7 @@ export default function Settings() {
     try {
       await saveSettings(settings);
       await updateGlobalShortcut(settings.hotkey);
+      await applyTrayLanguage(settings.language);
       if (settings.autostart_enabled) {
         await enableAutostart();
       } else {

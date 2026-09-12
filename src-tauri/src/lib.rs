@@ -47,6 +47,60 @@ fn update_global_shortcut(app: tauri::AppHandle, hotkey: String) -> Result<(), S
         .map_err(|e| format!("ホットキーの登録に失敗しました: {e}"))
 }
 
+/// システムトレイメニューの各項目。表示言語切り替え時に文言を差し替えるために保持しておく。
+struct TrayMenuItems {
+    new_task: MenuItem<tauri::Wry>,
+    settings: MenuItem<tauri::Wry>,
+    quit: MenuItem<tauri::Wry>,
+}
+
+fn tray_label(language: &str, key: &str) -> &'static str {
+    let is_en = language == "en";
+    match key {
+        "new_task" => {
+            if is_en {
+                "New Task"
+            } else {
+                "新規タスク登録"
+            }
+        }
+        "settings" => {
+            if is_en {
+                "Settings"
+            } else {
+                "設定"
+            }
+        }
+        "quit" => {
+            if is_en {
+                "Quit"
+            } else {
+                "終了"
+            }
+        }
+        _ => "",
+    }
+}
+
+/// 設定画面で表示言語を変更・保存した際に、トレイメニューの文言も合わせて更新するために呼ぶ。
+#[tauri::command]
+fn apply_tray_language(app: tauri::AppHandle, language: String) -> Result<(), String> {
+    let items = app.state::<TrayMenuItems>();
+    items
+        .new_task
+        .set_text(tray_label(&language, "new_task"))
+        .map_err(|e| e.to_string())?;
+    items
+        .settings
+        .set_text(tray_label(&language, "settings"))
+        .map_err(|e| e.to_string())?;
+    items
+        .quit
+        .set_text(tray_label(&language, "quit"))
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -78,17 +132,39 @@ pub fn run() {
             hide_popup_window,
             open_settings_window,
             update_global_shortcut,
+            apply_tray_language,
         ])
         .setup(|app| {
             let handle = app.handle().clone();
 
+            // 保存済み設定を先に読み込み、トレイメニューの初期文言に反映する。
+            let current_settings = settings::load(&handle);
+            let language = current_settings.language.as_str();
+
             // システムトレイメニュー
-            let new_task_item =
-                MenuItem::with_id(app, "new_task", "新規タスク登録", true, None::<&str>)?;
-            let settings_item =
-                MenuItem::with_id(app, "settings", "設定", true, None::<&str>)?;
-            let quit_item = MenuItem::with_id(app, "quit", "終了", true, None::<&str>)?;
+            let new_task_item = MenuItem::with_id(
+                app,
+                "new_task",
+                tray_label(language, "new_task"),
+                true,
+                None::<&str>,
+            )?;
+            let settings_item = MenuItem::with_id(
+                app,
+                "settings",
+                tray_label(language, "settings"),
+                true,
+                None::<&str>,
+            )?;
+            let quit_item =
+                MenuItem::with_id(app, "quit", tray_label(language, "quit"), true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&new_task_item, &settings_item, &quit_item])?;
+
+            app.manage(TrayMenuItems {
+                new_task: new_task_item,
+                settings: settings_item,
+                quit: quit_item,
+            });
 
             TrayIconBuilder::new()
                 .icon(app.default_window_icon().unwrap().clone())
@@ -102,8 +178,7 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            // 保存済み設定を読み込み、ホットキーを登録する。
-            let current_settings = settings::load(&handle);
+            // ホットキーを登録する。
             if let Err(e) = app
                 .global_shortcut()
                 .register(current_settings.hotkey.as_str())

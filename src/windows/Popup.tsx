@@ -29,6 +29,9 @@ export default function Popup() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const [language, setLanguage] = useState<Language>("ja");
+  // 連続して登録する: ONの間は登録成功後もウィンドウを閉じず、入力欄だけクリアする。
+  // アプリ起動直後の既定値はOFF。ポップアップの再表示(reset)では意図的に引き継ぐ。
+  const [continuous, setContinuous] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const t = getTranslations(language).popup;
 
@@ -55,10 +58,19 @@ export default function Popup() {
   useEffect(() => {
     if (status !== "success") return;
     const timer = setTimeout(() => {
-      hidePopupWindow();
+      if (continuous) {
+        // 連続登録モード: 閉じずに入力欄だけクリアして次の入力へ進む
+        setTaskName("");
+        setDueDate("");
+        setStatus("idle");
+        setMessage("");
+        requestAnimationFrame(() => titleInputRef.current?.focus());
+      } else {
+        hidePopupWindow();
+      }
     }, 1500);
     return () => clearTimeout(timer);
-  }, [status]);
+  }, [status, continuous]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") {
@@ -128,6 +140,18 @@ export default function Popup() {
             onChange={(e) => setDueDate(e.target.value)}
             disabled={status === "submitting" || status === "success"}
           />
+        </div>
+
+        <div className="popup__toggle-row">
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={continuous}
+              onChange={(e) => setContinuous(e.target.checked)}
+            />
+            <span className="switch__track" />
+          </label>
+          <span className="popup__toggle-label">{t.continuousLabel}</span>
         </div>
 
         <div className="popup__footer">

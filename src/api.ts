@@ -21,3 +21,6 @@ export const openSettingsWindow = () => invoke<void>("open_settings_window");
 
 export const updateGlobalShortcut = (hotkey: string) =>
   invoke<void>("update_global_shortcut", { hotkey });
+
+export const applyTrayLanguage = (language: string) =>
+  invoke<void>("apply_tray_language", { language });
