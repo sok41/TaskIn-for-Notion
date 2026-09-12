@@ -21,6 +21,9 @@ pub struct Settings {
     pub hotkey: String,
     #[serde(default = "default_true")]
     pub autostart_enabled: bool,
+    /// 表示言語("ja" | "en")。UIの文言はフロントエンド側で切り替える。
+    #[serde(default = "default_language")]
+    pub language: String,
 }
 
 impl Default for Settings {
@@ -32,6 +35,7 @@ impl Default for Settings {
             date_property: None,
             hotkey: default_hotkey(),
             autostart_enabled: default_true(),
+            language: default_language(),
         }
     }
 }
@@ -42,6 +46,10 @@ fn default_hotkey() -> String {
 
 fn default_true() -> bool {
     true
+}
+
+fn default_language() -> String {
+    "ja".to_string()
 }
 
 impl Settings {

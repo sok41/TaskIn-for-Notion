@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { hidePopupWindow, registerTask } from "../api";
+import { getSettings, hidePopupWindow, registerTask } from "../api";
+import { getTranslations } from "../i18n";
+import type { Language } from "../types";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -26,13 +28,19 @@ export default function Popup() {
   const [dueDate, setDueDate] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  const [language, setLanguage] = useState<Language>("ja");
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const t = getTranslations(language).popup;
 
   const reset = () => {
     setTaskName("");
     setDueDate("");
     setStatus("idle");
     setMessage("");
+    // ポップアップは使い回すため、開くたびに最新の表示言語を反映する
+    getSettings()
+      .then((s) => setLanguage(s.language))
+      .catch(() => {});
     requestAnimationFrame(() => titleInputRef.current?.focus());
   };
 
@@ -65,10 +73,10 @@ export default function Popup() {
     try {
       await registerTask(taskName.trim(), dueDate.trim() || null);
       setStatus("success");
-      setMessage("Notionに登録しました");
+      setMessage(t.successMessage);
     } catch (err) {
       setStatus("error");
-      setMessage(typeof err === "string" ? err : "登録に失敗しました");
+      setMessage(typeof err === "string" ? err : t.genericError);
     }
   };
 
@@ -88,7 +96,7 @@ export default function Popup() {
         <input
           ref={titleInputRef}
           className="popup__title-input"
-          placeholder="タスク名を入力"
+          placeholder={t.taskNamePlaceholder}
           value={taskName}
           onChange={(e) => setTaskName(e.target.value)}
           disabled={status === "submitting" || status === "success"}
@@ -98,24 +106,24 @@ export default function Popup() {
         <hr className="popup__divider" />
 
         <div className="popup__due-row">
-          <span className="popup__due-label">期限</span>
+          <span className="popup__due-label">{t.dueLabel}</span>
           <button
             type="button"
             className={`pill ${dueDate === todayIso() ? "pill--active" : ""}`}
             onClick={() => setDueDate(todayIso())}
           >
-            今日
+            {t.today}
           </button>
           <button
             type="button"
             className={`pill ${dueDate === tomorrowIso() ? "pill--active" : ""}`}
             onClick={() => setDueDate(tomorrowIso())}
           >
-            明日
+            {t.tomorrow}
           </button>
           <input
             className="popup__due-input"
-            placeholder="YYYY-MM-DD"
+            placeholder={t.dueDatePlaceholder}
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
             disabled={status === "submitting" || status === "success"}
@@ -123,13 +131,13 @@ export default function Popup() {
         </div>
 
         <div className="popup__footer">
-          <span className="popup__hint">Enterで登録 / Escで閉じる</span>
+          <span className="popup__hint">{t.hint}</span>
           <button
             type="submit"
             className="popup__submit"
             disabled={!taskName.trim() || status === "submitting" || status === "success"}
           >
-            {status === "submitting" ? "登録中..." : "登録"}
+            {status === "submitting" ? t.submitting : t.submit}
           </button>
         </div>
 

@@ -7,7 +7,8 @@ import {
   saveSettings,
   updateGlobalShortcut,
 } from "../api";
-import type { AppSettings } from "../types";
+import { getTranslations } from "../i18n";
+import type { AppSettings, Language } from "../types";
 
 const DEFAULT_SETTINGS: AppSettings = {
   integration_token: "",
@@ -16,6 +17,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   date_property: null,
   hotkey: "Ctrl+Alt+N",
   autostart_enabled: true,
+  language: "ja",
 };
 
 type SaveState = "idle" | "saving" | "success" | "error";
@@ -28,6 +30,7 @@ export default function Settings() {
   const [detectMessage, setDetectMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveMessage, setSaveMessage] = useState("");
+  const t = getTranslations(settings.language).settings;
 
   useEffect(() => {
     getSettings().then((s) => {
@@ -36,6 +39,8 @@ export default function Settings() {
       if (s.date_property) setDateProperties([s.date_property]);
     });
   }, []);
+
+  const setLanguage = (language: Language) => setSettings((s) => ({ ...s, language }));
 
   const handleDetect = async () => {
     setDetecting(true);
@@ -50,9 +55,9 @@ export default function Settings() {
         date_property: schema.date_properties[0] ?? null,
       }));
       setDateProperties(schema.date_properties);
-      setDetectMessage({ text: `接続を確認しました（タイトル項目: ${schema.title_property}）`, ok: true });
+      setDetectMessage({ text: t.detectSuccess(schema.title_property), ok: true });
     } catch (err) {
-      setDetectMessage({ text: typeof err === "string" ? err : "接続の確認に失敗しました", ok: false });
+      setDetectMessage({ text: typeof err === "string" ? err : t.detectGenericError, ok: false });
     } finally {
       setDetecting(false);
     }
@@ -70,22 +75,40 @@ export default function Settings() {
         await disableAutostart();
       }
       setSaveState("success");
-      setSaveMessage("設定を保存しました");
+      setSaveMessage(t.saveSuccess);
     } catch (err) {
       setSaveState("error");
-      setSaveMessage(typeof err === "string" ? err : "設定の保存に失敗しました");
+      setSaveMessage(typeof err === "string" ? err : t.saveGenericError);
     }
   };
 
   return (
     <div className="settings">
-      <h1>TaskIn for Notion - 設定</h1>
-      <p className="settings__lead">
-        ホットキーで開くポップアップから、Notionデータベースへタスクを登録するための連携設定です。
-      </p>
+      <h1>{t.title}</h1>
+      <p className="settings__lead">{t.lead}</p>
 
       <section className="settings__section">
-        <label htmlFor="token">Integration Token</label>
+        <label>{t.languageLabel}</label>
+        <div className="settings__actions">
+          <button
+            type="button"
+            className={`settings__button ${settings.language === "ja" ? "settings__button--primary" : ""}`}
+            onClick={() => setLanguage("ja")}
+          >
+            {t.languageJa}
+          </button>
+          <button
+            type="button"
+            className={`settings__button ${settings.language === "en" ? "settings__button--primary" : ""}`}
+            onClick={() => setLanguage("en")}
+          >
+            {t.languageEn}
+          </button>
+        </div>
+      </section>
+
+      <section className="settings__section">
+        <label htmlFor="token">{t.tokenLabel}</label>
         <input
           id="token"
           type="password"
@@ -96,11 +119,11 @@ export default function Settings() {
       </section>
 
       <section className="settings__section">
-        <label htmlFor="database">データベースURL</label>
+        <label htmlFor="database">{t.databaseUrlLabel}</label>
         <input
           id="database"
           type="text"
-          placeholder="https://www.notion.so/xxxx/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+          placeholder={t.databaseUrlPlaceholder}
           value={databaseUrlInput}
           onChange={(e) => setDatabaseUrlInput(e.target.value)}
         />
@@ -111,7 +134,7 @@ export default function Settings() {
             onClick={handleDetect}
             disabled={detecting || !databaseUrlInput.trim() || !settings.integration_token.trim()}
           >
-            {detecting ? "確認中..." : "接続テスト / プロパティ検出"}
+            {detecting ? t.detecting : t.detectButton}
           </button>
         </div>
         {detectMessage && (
@@ -123,7 +146,7 @@ export default function Settings() {
 
       {dateProperties.length > 1 && (
         <section className="settings__section">
-          <label htmlFor="date-property">期限として使う日付プロパティ</label>
+          <label htmlFor="date-property">{t.datePropertyLabel}</label>
           <select
             id="date-property"
             value={settings.date_property ?? ""}
@@ -139,7 +162,7 @@ export default function Settings() {
       )}
 
       <section className="settings__section">
-        <label htmlFor="hotkey">ホットキー</label>
+        <label htmlFor="hotkey">{t.hotkeyLabel}</label>
         <input
           id="hotkey"
           type="text"
@@ -151,7 +174,7 @@ export default function Settings() {
 
       <section className="settings__section settings__row">
         <label htmlFor="autostart" style={{ marginBottom: 0 }}>
-          Windows起動時に自動起動する
+          {t.autostartLabel}
         </label>
         <label className="switch">
           <input
@@ -165,20 +188,19 @@ export default function Settings() {
       </section>
 
       <section className="settings__section">
-        <label>Notion側の準備手順</label>
+        <label>{t.helpTitle}</label>
         <div className="settings__help">
           <ol>
             <li>
+              {t.helpStep1Prefix}
               <a href="https://www.notion.so/my-integrations" target="_blank" rel="noreferrer">
-                Notionの「My integrations」
+                {t.helpStep1LinkText}
               </a>
-              で新規Integrationを作成し、表示された Internal Integration Secret をコピーして上の欄に貼り付ける
+              {t.helpStep1Suffix}
             </li>
-            <li>タスクを登録したいNotionデータベースを開く</li>
-            <li>
-              右上の「•••」メニュー →「コネクト」から、作成したIntegrationを選んでこのデータベースと共有する
-            </li>
-            <li>データベースのURLをコピーし、上の「データベースURL」欄に貼り付けて「接続テスト」を押す</li>
+            <li>{t.helpStep2}</li>
+            <li>{t.helpStep3}</li>
+            <li>{t.helpStep4}</li>
           </ol>
         </div>
       </section>
@@ -190,7 +212,7 @@ export default function Settings() {
           onClick={handleSave}
           disabled={saveState === "saving"}
         >
-          {saveState === "saving" ? "保存中..." : "保存"}
+          {saveState === "saving" ? t.saving : t.saveButton}
         </button>
       </div>
       {saveMessage && (
