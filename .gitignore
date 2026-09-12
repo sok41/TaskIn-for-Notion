@@ -25,3 +25,5 @@ dist-ssr
 
 # 個人用のローカル限定ドキュメント（gitでは管理しない）
 local_docs/
+CLAUDE.md
+.claude/*
