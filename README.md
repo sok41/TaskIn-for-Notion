@@ -1,97 +1,101 @@
 # TaskIn for Notion
 
-Windows上でホットキー（既定: `Ctrl+Alt+N`）を押すと小さな入力ウィンドウが表示され、タスク名（と任意で期限）を入力するだけで、あらかじめ設定したNotionデータベースに新規ページとして自動登録される常駐アプリケーションです。
+**English** | [日本語](./README.ja.md)
 
-作業中に思いついたタスクを、Notionを開かずにその場で記録できます。
+A Windows tray app that captures a task straight into Notion in seconds. Press a hotkey (default: `Ctrl+Alt+N`), a small popup appears, type a task name (and an optional due date), and it's added as a new page in your Notion database — no need to open Notion at all.
 
-## できること
+## Features
 
-- ホットキー1つで入力ポップアップを呼び出し、タスク名・期限を入力してNotionに登録
-- 期限は「今日」「明日」ボタン、または`YYYY-MM-DD`形式の直接入力の両方に対応
-- システムトレイに常駐し、バックグラウンドで待機
-- Windows起動時の自動起動、表示言語（日本語/English）の切り替えに対応
+- One hotkey opens an input popup; enter a task name and due date and it's saved to Notion
+- Due dates via "Today" / "Tomorrow" quick-pick buttons, or typed directly as `YYYY-MM-DD`
+- "Keep adding tasks" toggle: leave the popup open after each save to add several tasks in a row
+- Runs in the background from the system tray
+- Launch at Windows startup, switchable UI language (日本語 / English)
+- In-app "Check for updates" button that checks GitHub Releases for a newer version
 
-## インストール
+## Install
 
-現時点ではソースからビルドして利用します（リリース版のインストーラー配布は今後の予定です）。
+For now, build it from source (a packaged release build will be published on GitHub Releases; see [Updates](#updates) below).
 
-前提: Node.js, Rust（`rustup`）, Windows向けC++ビルドツール（Visual Studio Build Toolsの「C++によるデスクトップ開発」ワークロード）, WebView2ランタイム。
+Prerequisites: Node.js, Rust (`rustup`), Windows C++ build tools (the "Desktop development with C++" workload from Visual Studio Build Tools), and the WebView2 runtime.
 
 ```bash
 npm install
 npm run tauri dev
 ```
 
-正式にインストールして使う場合は、以下でインストーラー（`.exe`/`.msi`）を作成し、実行してインストールします。
+To install it properly, build an installer (`.exe` / `.msi`) and run it:
 
 ```bash
 npm run tauri build
 ```
 
-生成物は `src-tauri/target/release/bundle/` 配下に出力されます。
+The installers are written to `src-tauri/target/release/bundle/`.
 
-## 初回セットアップ
+## First-time setup
 
-初回起動時、またはNotion連携が未設定の場合は自動的に設定画面が開きます。次の手順でNotion側の準備とアプリへの入力を行ってください。
+On first launch (or whenever Notion isn't connected yet), the settings window opens automatically. Follow these steps to connect it to Notion:
 
-1. **Notion Integrationを作成する**
-   [Notionの「My integrations」](https://www.notion.so/my-integrations)を開き、「+ New integration」から新規作成します。作成後に表示される「Internal Integration Secret」（`secret_...`または`ntn_...`から始まる文字列）を控えておきます。
+1. **Create a Notion integration**
+   Open [Notion's "My integrations"](https://www.notion.so/my-integrations) and create a new one. Copy the "Internal Integration Secret" it shows you (starts with `secret_...` or `ntn_...`).
 
-2. **登録先データベースをIntegrationと共有する**
-   タスクを登録したいNotionデータベースを開き、右上の「•••」メニュー →「コネクト」から、作成したIntegrationを選んで共有します。
+2. **Share your database with the integration**
+   Open the Notion database you want tasks added to, then from the "•••" menu in the top right, choose "Connect to" and select the integration you just created.
 
-3. **データベースのURLを控える**
-   ブラウザのアドレスバーのURL、またはデータベースの「•••」→「Copy link」で取得します。
+3. **Copy the database URL**
+   Copy it from your browser's address bar, or via the database's "•••" → "Copy link".
 
-4. **アプリの設定画面に入力する**
-   - `Integration Token`欄に手順1のシークレットを貼り付け
-   - `データベースURL`欄に手順3のURLを貼り付け、「接続テスト / プロパティ検出」を押す
-     - 成功すると、タイトル・期限として使うプロパティが自動的に認識されます
-   - 必要であれば`ホットキー`や表示言語、自動起動の設定を変更
-   - 「保存」を押して完了
+4. **Fill in the app's settings window**
+   - Paste the secret from step 1 into `Integration Token`
+   - Paste the URL from step 3 into `Database URL`, then press "Test connection / detect properties"
+     - On success, the title and due-date properties to use are detected automatically
+   - Optionally change the `Hotkey`, display language, or autostart setting
+   - Press "Save"
 
-## 使い方
+## Usage
 
-1. どの画面からでも、ホットキー（既定: `Ctrl+Alt+N`）を押す
-2. 表示されたポップアップにタスク名を入力（必須）
-3. 必要であれば期限を設定
-   - 「今日」「明日」ボタンで即入力、または`YYYY-MM-DD`形式で直接入力
-4. `Enter`を押す、または「登録」ボタンをクリック
-5. 成功すると緑色のメッセージが表示され、1〜2秒後にウィンドウが自動的に閉じる
-   - 「連続して登録する」をONにしておくと、登録成功後もウィンドウを閉じずに入力欄だけクリアされ、続けて次のタスクを入力できる（既定はOFF）
-   - 失敗した場合は赤色のメッセージが表示され、ウィンドウは閉じずに再入力・再送信できる
-6. `Esc`キーでいつでもウィンドウを閉じられる
+1. Press the hotkey (default: `Ctrl+Alt+N`) from anywhere
+2. Type a task name in the popup (required)
+3. Optionally set a due date
+   - Use the "Today" / "Tomorrow" buttons, or type one directly as `YYYY-MM-DD`
+4. Press `Enter`, or click "Add"
+5. On success, a green message appears and the window closes automatically after 1–2 seconds
+   - Turn on "Keep adding tasks" to leave the window open after each save, with the fields cleared, so you can add several tasks in a row (off by default)
+   - On failure, a red error message appears and the window stays open so you can fix and retry
+6. Press `Esc` at any time to close the window
 
-### システムトレイメニュー
+### System tray menu
 
-タスクバー右下の通知領域にあるアイコンを右クリックすると、以下の操作ができます。
+Right-click the tray icon in the notification area for:
 
-- **新規タスク登録**: ホットキーと同様に入力ポップアップを開く
-- **設定**: 設定画面を開く
-- **終了**: アプリを完全に終了する
+- **New Task**: opens the input popup, same as the hotkey
+- **Settings**: opens the settings window
+- **Quit**: exits the app completely
 
-設定画面・入力ポップアップは、右上の閉じるボタンでは終了せず、非表示になるだけです（常駐は継続します）。
+The settings window and popup are only hidden when closed with their close button — the app keeps running in the tray.
 
-## 設定項目
+## Settings
 
-| 項目 | 内容 |
+| Setting | Description |
 |---|---|
-| 表示言語 | 日本語 / English を切り替え |
-| Integration Token | Notion Integrationのシークレットキー |
-| データベースURL | 登録先データベースのURL（貼り付けるとIDを自動抽出） |
-| ホットキー | 入力ポップアップを呼び出すキーの組み合わせ（既定: `Ctrl+Alt+N`） |
-| Windows起動時に自動起動する | ONの場合、Windowsログイン時にアプリが自動的に立ち上がる |
-| アップデートを確認 | GitHubのリリースページを確認し、新しいバージョンがあれば通知する |
+| Language | Switch between 日本語 and English |
+| Integration Token | Your Notion integration's secret key |
+| Database URL | The target database's URL (its ID is extracted automatically) |
+| Hotkey | The key combination that opens the input popup (default: `Ctrl+Alt+N`) |
+| Launch automatically when Windows starts | When on, the app starts automatically at Windows login |
+| Check for updates | Checks GitHub Releases and reports whether a newer version is available |
 
-## トラブルシューティング
+## Updates
 
-- **登録に失敗する**: ポップアップに表示されるエラーメッセージを確認してください。多くの場合、Integration Tokenの入力ミスか、データベースがIntegrationと共有されていないことが原因です。設定画面で「接続テスト」を再実行して確認してください。
-- **ホットキーが反応しない**: 他のアプリが同じキーの組み合わせを使用している可能性があります。設定画面でホットキーを変更してみてください。
-- **ネットワーク未接続時**: 登録に失敗し、その旨のメッセージが表示されます。接続を確認のうえ再送信してください。
+The app isn't published as a release yet, so "Check for updates" currently reports that no release is available. Once a version is published on [GitHub Releases](https://github.com/sok41/TaskIn-for-Notion/releases), pressing the button in Settings will detect it and link you to the download page.
 
-## 注意事項
+## Troubleshooting
 
-- 保存した認証情報（Integration Token等）は、個人利用を前提に**ローカルに平文で保存**されます（第三者への配布時は暗号化保存への切り替えを予定しています）。
-- 登録先のNotionデータベースは1つに固定です（複数データベースからの選択やタスクの編集・削除には対応していません）。
+- **Adding a task fails**: check the error message shown in the popup. This is usually a wrong Integration Token, or the database not being shared with the integration. Re-run "Test connection" in Settings to check.
+- **The hotkey doesn't respond**: another app may already be using the same combination. Try changing the hotkey in Settings.
+- **No network connection**: the popup reports the failure — check your connection and try again.
 
----
+## Notes
+
+- Saved credentials (Integration Token, etc.) are currently **stored locally in plain text**, since this is built for personal use (a switch to encrypted storage, e.g. Windows Credential Manager, is planned before any wider distribution).
+- The target Notion database is fixed to one (there's no support for choosing among multiple databases, or for editing/deleting tasks from the app).
