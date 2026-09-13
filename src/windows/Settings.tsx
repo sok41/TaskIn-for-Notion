@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { enable as enableAutostart, disable as disableAutostart } from "@tauri-apps/plugin-autostart";
 import {
   applyTrayLanguage,
+  checkForUpdates,
   detectDatabaseSchema,
   extractDatabaseId,
   getSettings,
@@ -9,7 +10,7 @@ import {
   updateGlobalShortcut,
 } from "../api";
 import { getTranslations } from "../i18n";
-import type { AppSettings, Language } from "../types";
+import type { AppSettings, Language, UpdateCheckResult } from "../types";
 
 const DEFAULT_SETTINGS: AppSettings = {
   integration_token: "",
@@ -31,6 +32,9 @@ export default function Settings() {
   const [detectMessage, setDetectMessage] = useState<{ text: string; ok: boolean } | null>(null);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [saveMessage, setSaveMessage] = useState("");
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
+  const [updateError, setUpdateError] = useState("");
   const t = getTranslations(settings.language).settings;
 
   useEffect(() => {
@@ -81,6 +85,20 @@ export default function Settings() {
     } catch (err) {
       setSaveState("error");
       setSaveMessage(typeof err === "string" ? err : t.saveGenericError);
+    }
+  };
+
+  const handleCheckUpdate = async () => {
+    setCheckingUpdate(true);
+    setUpdateResult(null);
+    setUpdateError("");
+    try {
+      const result = await checkForUpdates();
+      setUpdateResult(result);
+    } catch (err) {
+      setUpdateError(typeof err === "string" ? err : t.checkUpdateGenericError);
+    } finally {
+      setCheckingUpdate(false);
     }
   };
 
@@ -187,6 +205,36 @@ export default function Settings() {
           />
           <span className="switch__track" />
         </label>
+      </section>
+
+      <section className="settings__section">
+        <label>{t.updateSectionLabel}</label>
+        <div className="settings__actions">
+          <button
+            type="button"
+            className="settings__button"
+            onClick={handleCheckUpdate}
+            disabled={checkingUpdate}
+          >
+            {checkingUpdate ? t.checkingUpdate : t.checkUpdateButton}
+          </button>
+        </div>
+        {updateResult && (
+          <div className="settings__message settings__message--success">
+            {updateResult.update_available
+              ? t.updateAvailableMessage(updateResult.latest_version)
+              : t.upToDateMessage(updateResult.current_version)}
+            {updateResult.update_available && (
+              <>
+                {" "}
+                <a href={updateResult.release_url} target="_blank" rel="noreferrer">
+                  {t.downloadLinkText}
+                </a>
+              </>
+            )}
+          </div>
+        )}
+        {updateError && <div className="settings__message settings__message--error">{updateError}</div>}
       </section>
 
       <section className="settings__section">

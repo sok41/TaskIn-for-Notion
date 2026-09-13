@@ -1,5 +1,6 @@
 mod notion;
 mod settings;
+mod update;
 
 use tauri::{
     menu::{Menu, MenuItem},
@@ -133,6 +134,7 @@ pub fn run() {
             open_settings_window,
             update_global_shortcut,
             apply_tray_language,
+            update::check_for_updates,
         ])
         .setup(|app| {
             let handle = app.handle().clone();

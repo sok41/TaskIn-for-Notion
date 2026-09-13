@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { AppSettings, DatabaseSchema } from "./types";
+import type { AppSettings, DatabaseSchema, UpdateCheckResult } from "./types";
 
 export const getSettings = () => invoke<AppSettings>("get_settings");
 
@@ -24,3 +24,5 @@ export const updateGlobalShortcut = (hotkey: string) =>
 
 export const applyTrayLanguage = (language: string) =>
   invoke<void>("apply_tray_language", { language });
+
+export const checkForUpdates = () => invoke<UpdateCheckResult>("check_for_updates");

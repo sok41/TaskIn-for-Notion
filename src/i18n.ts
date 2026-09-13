@@ -41,6 +41,13 @@ export interface Translations {
     saving: string;
     saveSuccess: string;
     saveGenericError: string;
+    updateSectionLabel: string;
+    checkUpdateButton: string;
+    checkingUpdate: string;
+    upToDateMessage: (version: string) => string;
+    updateAvailableMessage: (version: string) => string;
+    downloadLinkText: string;
+    checkUpdateGenericError: string;
   };
 }
 
@@ -86,6 +93,13 @@ export const translations: Record<Language, Translations> = {
       saving: "保存中...",
       saveSuccess: "設定を保存しました",
       saveGenericError: "設定の保存に失敗しました",
+      updateSectionLabel: "アップデート",
+      checkUpdateButton: "アップデートを確認",
+      checkingUpdate: "確認中...",
+      upToDateMessage: (version) => `最新版です（v${version}）`,
+      updateAvailableMessage: (version) => `新しいバージョン v${version} があります`,
+      downloadLinkText: "ダウンロードページを開く",
+      checkUpdateGenericError: "アップデートの確認に失敗しました",
     },
   },
   en: {
@@ -129,6 +143,13 @@ export const translations: Record<Language, Translations> = {
       saving: "Saving...",
       saveSuccess: "Settings saved",
       saveGenericError: "Failed to save settings",
+      updateSectionLabel: "Updates",
+      checkUpdateButton: "Check for updates",
+      checkingUpdate: "Checking...",
+      upToDateMessage: (version) => `You're up to date (v${version})`,
+      updateAvailableMessage: (version) => `A new version (v${version}) is available`,
+      downloadLinkText: "Open download page",
+      checkUpdateGenericError: "Failed to check for updates",
     },
   },
 };

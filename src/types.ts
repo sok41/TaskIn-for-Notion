@@ -14,3 +14,10 @@ export interface DatabaseSchema {
   title_property: string;
   date_properties: string[];
 }
+
+export interface UpdateCheckResult {
+  current_version: string;
+  latest_version: string;
+  update_available: boolean;
+  release_url: string;
+}
