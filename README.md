@@ -89,12 +89,6 @@ The settings window and popup are only hidden when closed with their close butto
 
 The app isn't published as a release yet, so "Check for updates" currently reports that no release is available. Once a version is published on [GitHub Releases](https://github.com/sok41/TaskIn-for-Notion/releases), pressing the button in Settings will detect it and link you to the download page.
 
-## Troubleshooting
-
-- **Adding a task fails**: check the error message shown in the popup. This is usually a wrong Integration Token, or the database not being shared with the integration. Re-run "Test connection" in Settings to check.
-- **The hotkey doesn't respond**: another app may already be using the same combination. Try changing the hotkey in Settings.
-- **No network connection**: the popup reports the failure — check your connection and try again.
-
 ## Notes
 
 - Saved credentials (Integration Token, etc.) are currently **stored locally in plain text**, since this is built for personal use (a switch to encrypted storage, e.g. Windows Credential Manager, is planned before any wider distribution).
