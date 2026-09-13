@@ -15,7 +15,9 @@ A Windows tray app that captures a task straight into Notion in seconds. Press a
 
 ## Install
 
-For now, build it from source (a packaged release build will be published on GitHub Releases; see [Updates](#updates) below).
+Download the latest installer (`.exe` or `.msi`) from [GitHub Releases](https://github.com/sok41/TaskIn-for-Notion/releases/latest) and run it. The app will notify you of future updates from its Settings window (see [Updates](#updates) below).
+
+### Building from source
 
 Prerequisites: Node.js, Rust (`rustup`), Windows C++ build tools (the "Desktop development with C++" workload from Visual Studio Build Tools), and the WebView2 runtime.
 
@@ -24,7 +26,7 @@ npm install
 npm run tauri dev
 ```
 
-To install it properly, build an installer (`.exe` / `.msi`) and run it:
+To build your own installer:
 
 ```bash
 npm run tauri build
@@ -87,7 +89,7 @@ The settings window and popup are only hidden when closed with their close butto
 
 ## Updates
 
-The app isn't published as a release yet, so "Check for updates" currently reports that no release is available. Once a version is published on [GitHub Releases](https://github.com/sok41/TaskIn-for-Notion/releases), pressing the button in Settings will detect it and link you to the download page.
+Press "Check for updates" in Settings at any time to compare your installed version against the [latest GitHub Release](https://github.com/sok41/TaskIn-for-Notion/releases/latest). If a newer version is available, it links you straight to the download page.
 
 ## Notes
 

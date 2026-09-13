@@ -17,7 +17,9 @@ Windows上でホットキー（既定: `Ctrl+Alt+N`）を押すと小さな入�
 
 ## インストール
 
-現時点ではソースからビルドして利用します（リリース版はGitHub Releasesで公開予定です。詳しくは下記の[アップデートについて](#アップデートについて)を参照）。
+[GitHub Releases](https://github.com/sok41/TaskIn-for-Notion/releases/latest)から最新のインストーラー（`.exe`または`.msi`）をダウンロードして実行してください。以降のアップデートはアプリの設定画面から確認できます（詳しくは下記の[アップデート](#アップデート)を参照）。
+
+### ソースからビルドする場合
 
 前提: Node.js, Rust（`rustup`）, Windows向けC++ビルドツール（Visual Studio Build Toolsの「C++によるデスクトップ開発」ワークロード）, WebView2ランタイム。
 
@@ -26,7 +28,7 @@ npm install
 npm run tauri dev
 ```
 
-正式にインストールして使う場合は、以下でインストーラー（`.exe`/`.msi`）を作成し、実行してインストールします。
+自分でインストーラーを作成する場合は以下を実行します。
 
 ```bash
 npm run tauri build
@@ -86,6 +88,10 @@ npm run tauri build
 | ホットキー | 入力ポップアップを呼び出すキーの組み合わせ（既定: `Ctrl+Alt+N`） |
 | Windows起動時に自動起動する | ONの場合、Windowsログイン時にアプリが自動的に立ち上がる |
 | アップデートを確認 | GitHubのリリースページを確認し、新しいバージョンがあれば通知する |
+
+## アップデート
+
+設定画面の「アップデートを確認」を押すと、インストール済みのバージョンと[最新のGitHub Release](https://github.com/sok41/TaskIn-for-Notion/releases/latest)を比較します。新しいバージョンがあれば、ダウンロードページへのリンクが表示されます。
 
 ## トラブルシューティング
 
